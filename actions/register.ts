@@ -1,9 +1,12 @@
-'use server'
+"use server";
 import { RegisterSchema } from "@/schemas";
 import * as z from "zod";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "@/data/user";
 import { db } from "@/lib/db";
+
+import { generateVerificationToken } from "@/lib/token";
+import { sendVerificationEmail } from "@/lib/mail";
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const validateFields = RegisterSchema.safeParse(values);
 
@@ -20,8 +23,11 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Email already exists" };
   }
 
-  await db.user.create({ data: { name,email,password:hashedPassword } });
+  await db.user.create({ data: { name, email, password: hashedPassword } });
 
+  const verificationToken = await generateVerificationToken(email);
   //TODO: Send verification token email
-  return { success: "User created successfully!" };
+
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+  return { success: "Confirmation email sent!!" };
 };
