@@ -9,7 +9,7 @@ import bcrypt from "bcryptjs";
 import { LoginSchema } from "./schemas";
 import { getUserByEmail } from "./data/user";
 
-console.log(process.env.GITHUB_CLIENT_SECRET);
+
 
 export default {
   providers: [
